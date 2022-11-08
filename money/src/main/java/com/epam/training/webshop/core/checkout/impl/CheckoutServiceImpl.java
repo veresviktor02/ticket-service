@@ -21,7 +21,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     @Override
     public Order checkout(Cart cart) {
-        Order order = new Order(cart.getProductList(), cart.getAggregatedNetPrice(), grossPriceCalculator.getAggregatedGrossPrice(cart));
+        Order order = new Order(cart.getProductDtoList(), cart.getAggregatedNetPrice(), grossPriceCalculator.getAggregatedGrossPrice(cart));
         checkoutObservable.notifyObservers(order);
         return order;
     }

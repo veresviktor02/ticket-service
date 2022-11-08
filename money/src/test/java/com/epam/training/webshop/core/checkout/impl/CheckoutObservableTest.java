@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import com.epam.training.webshop.core.checkout.CheckoutObserver;
 import com.epam.training.webshop.core.checkout.model.Order;
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
@@ -18,10 +18,10 @@ class CheckoutObservableTest {
     @Test
     void testNotifyObserversShouldCallAllObserverWhenOrderIsPassed() {
         // Given
-        List<Product> productList = Collections.emptyList();
+        List<ProductDto> productDtoList = Collections.emptyList();
         Money netPrice = new Money(1.0, Currency.getInstance("USD"));
         Money grossPrice = new Money(2.0, Currency.getInstance("USD"));
-        Order order = new Order(productList, netPrice, grossPrice);
+        Order order = new Order(productDtoList, netPrice, grossPrice);
         CheckoutObserver checkoutObserver = mock(CheckoutObserver.class);
         CheckoutObservable underTest = new CheckoutObservable(List.of(checkoutObserver));
 

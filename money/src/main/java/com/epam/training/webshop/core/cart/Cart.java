@@ -4,7 +4,7 @@ import com.epam.training.webshop.core.checkout.CheckoutObserver;
 import com.epam.training.webshop.core.checkout.model.Order;
 import com.epam.training.webshop.core.finance.bank.Bank;
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
@@ -17,42 +17,42 @@ import lombok.EqualsAndHashCode;
 public class Cart implements CheckoutObserver {
 
     private final Bank bank;
-    private final List<Product> productList;
+    private final List<ProductDto> productDtoList;
 
     public static Cart createEmptyCart(Bank bank) {
         return new Cart(bank, new ArrayList<>());
     }
 
-    public static Cart createCart(Bank bank, Product... products) {
-        return new Cart(bank, Arrays.asList(products));
+    public static Cart createCart(Bank bank, ProductDto... productDtos) {
+        return new Cart(bank, Arrays.asList(productDtos));
     }
 
-    public void addProduct(Product product) {
-        if (product != null) {
-            productList.add(product);
+    public void addProduct(ProductDto productDto) {
+        if (productDto != null) {
+            productDtoList.add(productDto);
         }
     }
 
-    public void removeProduct(Product product) {
-        if (product != null) {
-            productList.remove(product);
+    public void removeProduct(ProductDto productDto) {
+        if (productDto != null) {
+            productDtoList.remove(productDto);
         }
     }
 
     public Money getAggregatedNetPrice() {
         Money aggregatedPrice = new Money(0, Currency.getInstance("HUF"));
-        for (Product product : productList) {
-            aggregatedPrice = aggregatedPrice.add(product.getNetPrice(), bank);
+        for (ProductDto productDto : productDtoList) {
+            aggregatedPrice = aggregatedPrice.add(productDto.getNetPrice(), bank);
         }
         return aggregatedPrice;
     }
 
-    public List<Product> getProductList() {
-        return List.copyOf(productList);
+    public List<ProductDto> getProductDtoList() {
+        return List.copyOf(productDtoList);
     }
 
     public void clearCart() {
-        productList.clear();
+        productDtoList.clear();
     }
 
     @Override

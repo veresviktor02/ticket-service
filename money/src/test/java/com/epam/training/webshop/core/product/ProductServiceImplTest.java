@@ -1,88 +1,95 @@
 package com.epam.training.webshop.core.product;
 
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
+import com.epam.training.webshop.core.product.persistence.entity.Product;
+import com.epam.training.webshop.core.product.persistence.repository.ProductRepository;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class ProductServiceImplTest {
 
-    private ProductServiceImpl underTest;
+    private static final Product ENTITY = new Product("Hypo", 550.0, "HUF");
+    private static final ProductDto DTO = new ProductDto.Builder()
+        .withName("Hypo")
+        .withNetPrice(new Money(550.0, Currency.getInstance("HUF")))
+        .build();
 
-    @BeforeEach
-    void setUp() {
-        underTest = new ProductServiceImpl();
-        underTest.initProducts();
-    }
+    private final ProductRepository productRepository = Mockito.mock(ProductRepository.class);
+    private final ProductServiceImpl underTest = new ProductServiceImpl(productRepository);
+
 
     @Test
     void testGetProductListShouldReturnAStaticListWithTwoElements() {
-        // Given - When
-        List<Product> actual = underTest.getProductList();
+        // Given
+        Mockito.when(productRepository.findAll()).thenReturn(List.of(ENTITY));
+        List<ProductDto> expected = List.of(DTO);
+
+        // Mockito.when
+        List<ProductDto> actual = underTest.getProductList();
 
         // Then
-        Assertions.assertEquals(2, actual.size());
+        Assertions.assertEquals(expected, actual);
+        Mockito.verify(productRepository).findAll();
     }
 
     @Test
     void testGetProductByNameShouldReturnHypoWhenInputProductNameIsHypo() {
         // Given
-        Product expected = new Product.Builder()
-            .withName("Hypo")
-            .withNetPrice(new Money(550, Currency.getInstance("HUF")))
-            .build();
+        Mockito.when(productRepository.findByName("Hypo")).thenReturn(Optional.of(ENTITY));
+        Optional<ProductDto> expected = Optional.of(DTO);
 
-        // When
-        Optional<Product> actual = underTest.getProductByName("Hypo");
+        // Mockito.when
+        Optional<ProductDto> actual = underTest.getProductByName("Hypo");
 
         // Then
-        Assertions.assertTrue(actual.isPresent());
-        Assertions.assertEquals(expected, actual.get());
+        Assertions.assertEquals(expected, actual);
+        Mockito.verify(productRepository).findByName("Hypo");
     }
 
     @Test
     void testGetProductByNameShouldReturnOptionalEmptyWhenInputProductNameDoesNotExist() {
         // Given
-        Optional<Product> expected = Optional.empty();
+        Mockito.when(productRepository.findByName("dummy")).thenReturn(Optional.empty());
+        Optional<ProductDto> expected = Optional.empty();
 
-        // When
-        Optional<Product> actual = underTest.getProductByName("Liszt");
+        // Mockito.when
+        Optional<ProductDto> actual = underTest.getProductByName("dummy");
 
         // Then
         Assertions.assertTrue(actual.isEmpty());
         Assertions.assertEquals(expected, actual);
+        Mockito.verify(productRepository).findByName("dummy");
     }
 
     @Test
     void testGetProductByNameShouldReturnOptionalEmptyWhenInputProductNameIsNull() {
         // Given
-        Optional<Product> expected = Optional.empty();
+        Mockito.when(productRepository.findByName(null)).thenReturn(Optional.empty());
+        Optional<ProductDto> expected = Optional.empty();
 
-        // When
-        Optional<Product> actual = underTest.getProductByName(null);
+        // Mockito.when
+        Optional<ProductDto> actual = underTest.getProductByName(null);
 
         // Then
         Assertions.assertTrue(actual.isEmpty());
         Assertions.assertEquals(expected, actual);
+        Mockito.verify(productRepository).findByName(null);
     }
 
     @Test
     void testCreateProductShouldStoreTheGivenProductWhenTheInputProductIsValid() {
         // Given
-        Product expected = new Product.Builder()
-            .withName("Liszt")
-            .withNetPrice(new Money(230.0, Currency.getInstance("HUF")))
-            .build();
+        Mockito.when(productRepository.save(ENTITY)).thenReturn(ENTITY);
 
-        // When
-        underTest.createProduct(expected);
+        // Mockito.when
+        underTest.createProduct(DTO);
 
         // Then
-        Product actual = underTest.getProductByName("Liszt").get();
-        Assertions.assertEquals(expected, actual);
+        Mockito.verify(productRepository).save(ENTITY);
     }
 }

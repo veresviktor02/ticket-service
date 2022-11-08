@@ -2,7 +2,7 @@ package com.epam.training.webshop.core.cart;
 
 import com.epam.training.webshop.core.finance.bank.Bank;
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
 import java.util.Currency;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -24,20 +24,20 @@ class CartTest {
         underTest.addProduct(null);
 
         // Then
-        Assertions.assertTrue(underTest.getProductList().isEmpty());
+        Assertions.assertTrue(underTest.getProductDtoList().isEmpty());
     }
 
     @Test
     void testAddProductShouldStoreTheProductWhenItIsNotNull() {
         // Given
-        Product product = new Product("productName", new Money(1, USD_CURRENCY));
-        Cart expected = Cart.createCart(mockBank, product);
+        ProductDto productDto = new ProductDto("productName", new Money(1, USD_CURRENCY));
+        Cart expected = Cart.createCart(mockBank, productDto);
 
         // When
-        underTest.addProduct(product);
+        underTest.addProduct(productDto);
 
         // Then
-        Assertions.assertFalse(underTest.getProductList().isEmpty());
+        Assertions.assertFalse(underTest.getProductDtoList().isEmpty());
         Assertions.assertEquals(expected, underTest);
     }
 
@@ -57,8 +57,8 @@ class CartTest {
     @Test
     void testGetAggregatedNetPriceShouldReturnCorrectPriceWhenOneItemInTheCart() {
         // Given
-        Product product = new Product("productName", new Money(1.0, USD_CURRENCY));
-        underTest.addProduct(product);
+        ProductDto productDto = new ProductDto("productName", new Money(1.0, USD_CURRENCY));
+        underTest.addProduct(productDto);
         Money expected = new Money(2.1, HUF_CURRENCY);
         Mockito.when(mockBank.getExchangeRate(ArgumentMatchers.any())).thenReturn(Optional.of(2.1));
 

@@ -1,42 +1,50 @@
 package com.epam.training.webshop.core.product;
 
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
+import com.epam.training.webshop.core.product.persistence.entity.Product;
+import com.epam.training.webshop.core.product.persistence.repository.ProductRepository;
 import java.util.Currency;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private List<Product> productList;
+    private final ProductRepository productRepository;
 
-    public void initProducts() {
-        productList = new LinkedList<>(List.of(
-            Product.builder()
-                .withName("Salétromsav")
-                .withNetPrice(new Money(250, Currency.getInstance("HUF")))
-                .build(),
-            Product.builder()
-                .withName("Hypo")
-                .withNetPrice(new Money(550, Currency.getInstance("HUF")))
-                .build()));
+    @Override
+    public List<ProductDto> getProductList() {
+        return productRepository.findAll().stream()
+            .map(this::convertEntityToDto)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<Product> getProductList() {
-        return productList;
+    public Optional<ProductDto> getProductByName(String productName) {
+        return convertEntityToDto(productRepository.findByName(productName));
     }
 
     @Override
-    public Optional<Product> getProductByName(String productName) {
-        return productList.stream()
-            .filter(product -> product.getName().equals(productName))
-            .findFirst();
+    public void createProduct(ProductDto productDto) {
+        Product product = new Product(productDto.getName(),
+            productDto.getNetPrice().getAmount(),
+            productDto.getNetPrice().getCurrency().getCurrencyCode());
+        productRepository.save(product);
     }
 
-    @Override
-    public void createProduct(Product product) {
-        productList.add(product);
+    private ProductDto convertEntityToDto(Product product) {
+        return ProductDto.builder()
+            .withName(product.getName())
+            .withNetPrice(new Money(product.getNetPriceAmount(), Currency.getInstance(product.getNetPriceCurrencyCode())))
+            .build();
+    }
+
+    private Optional<ProductDto> convertEntityToDto(Optional<Product> product) {
+        return product.isEmpty() ? Optional.empty() : Optional.of(convertEntityToDto(product.get()));
     }
 }

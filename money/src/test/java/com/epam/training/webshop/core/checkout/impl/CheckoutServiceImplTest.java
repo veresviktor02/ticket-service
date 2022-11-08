@@ -9,7 +9,7 @@ import com.epam.training.webshop.core.cart.Cart;
 import com.epam.training.webshop.core.cart.grossprice.GrossPriceCalculator;
 import com.epam.training.webshop.core.checkout.model.Order;
 import com.epam.training.webshop.core.finance.money.Money;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
@@ -34,21 +34,21 @@ class CheckoutServiceImplTest {
     @Test
     void testCheckoutShouldReturnWithAnOrderWhenCartIsNotNull() {
         // Given
-        List<Product> productList = Collections.emptyList();
+        List<ProductDto> productDtoList = Collections.emptyList();
         Cart cart = mock(Cart.class);
         Money netPrice = new Money(1.0, Currency.getInstance("USD"));
         Money grossPrice = new Money(2.0, Currency.getInstance("USD"));
-        when(cart.getProductList()).thenReturn(productList);
+        when(cart.getProductDtoList()).thenReturn(productDtoList);
         when(cart.getAggregatedNetPrice()).thenReturn(netPrice);
         when(grossPriceCalculator.getAggregatedGrossPrice(cart)).thenReturn(grossPrice);
-        Order expected = new Order(productList, netPrice, grossPrice);
+        Order expected = new Order(productDtoList, netPrice, grossPrice);
 
         // When
         Order actual = underTest.checkout(cart);
 
         // Then
         assertEquals(expected, actual);
-        verify(cart).getProductList();
+        verify(cart).getProductDtoList();
         verify(cart).getAggregatedNetPrice();
         verify(grossPriceCalculator).getAggregatedGrossPrice(cart);
         verify(checkoutObservable).notifyObservers(expected);

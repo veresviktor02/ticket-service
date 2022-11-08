@@ -3,7 +3,7 @@ package com.epam.training.webshop.ui.command;
 import com.epam.training.webshop.core.cart.Cart;
 import com.epam.training.webshop.core.checkout.CheckoutService;
 import com.epam.training.webshop.core.product.ProductService;
-import com.epam.training.webshop.core.product.model.Product;
+import com.epam.training.webshop.core.product.model.ProductDto;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
@@ -19,16 +19,16 @@ public class CartCommand {
 
     @ShellMethod(key = "user cart list", value = "List the cart content")
     public String cartList() {
-        if (cart.getProductList().isEmpty()) {
+        if (cart.getProductDtoList().isEmpty()) {
             return "The cart is empty!";
         } else {
-            return cart.getProductList().toString();
+            return cart.getProductDtoList().toString();
         }
     }
 
     @ShellMethod(key = "user cart checkout", value = "Checkout the cart")
     public String cartCheckout() {
-        if (cart.getProductList().isEmpty()) {
+        if (cart.getProductDtoList().isEmpty()) {
             return "You cannot checkout because cart is empty!";
         } else {
             return "Your order: " + checkoutService.checkout(cart);
@@ -37,7 +37,7 @@ public class CartCommand {
 
     @ShellMethod(key = "user cart clear", value = "Clear the cart")
     public String cartClear() {
-        if (cart.getProductList().isEmpty()) {
+        if (cart.getProductDtoList().isEmpty()) {
             return "You cannot clear your cart because it is empty!";
         } else {
             cart.clearCart();
@@ -47,7 +47,7 @@ public class CartCommand {
 
     @ShellMethod(key = "user cart addProduct", value = "Add product to cart")
     public String addProduct(String productName) {
-        Optional<Product> optionalProduct = productService.getProductByName(productName);
+        Optional<ProductDto> optionalProduct = productService.getProductByName(productName);
         if (optionalProduct.isEmpty()) {
             return productName + " is not found as a Product!";
         } else {
@@ -58,11 +58,11 @@ public class CartCommand {
 
     @ShellMethod(key = "user cart removeProduct", value = "Remove product from cart")
     public String removeProduct(String productName) {
-        Optional<Product> optionalProduct = productService.getProductByName(productName);
+        Optional<ProductDto> optionalProduct = productService.getProductByName(productName);
         if (optionalProduct.isEmpty()) {
             return productName + " is not found as a Product!";
         }
-        if (cart.getProductList().contains(optionalProduct.get())) {
+        if (cart.getProductDtoList().contains(optionalProduct.get())) {
             cart.removeProduct(optionalProduct.get());
             return productName + " is removed from your cart!";
         } else {
